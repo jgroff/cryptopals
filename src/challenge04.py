@@ -26,6 +26,6 @@ def solveChallenge04():
           (bestLine, bestScore, bestByte[0]))
     decBytes = xor(lines[bestLine], bestByte)
     print("Decoded String: %s" % (decBytes.decode()))
-    
+
 if __name__ == "__main__":
     solveChallenge04()
