@@ -18,3 +18,19 @@ def xor(a, b):
         b, a = a, b
     out = bytes((i ^ j) for (i, j) in zip(cycle(a), b))
     return out
+
+def calcHammDist(a, b):
+    """ Calculates the Hamming distance between two bytes objects. They must
+    be of equal length. """
+    if (type(a) != bytes and type(a) != bytearray):
+        raise TypeError("a is not a bytes object")
+    if (type(b) != bytes and type(b) != bytearray):
+        raise TypeError("b is not a bytes object")
+    if len(a) != len(b):
+        raise ValueError("Bytes objects must be of equal length.")
+    if len(a) == 0:
+        return 0
+    dist = 0
+    for (i, j) in zip(a, b):
+        dist += bin(i ^ j).count("1")
+    return dist
