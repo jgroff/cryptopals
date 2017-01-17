@@ -1,3 +1,6 @@
+""" Provides various bit/byte manipulation functions to assist with the
+cryptopals challenges. """
+
 from itertools import cycle
 
 def xor(a, b):

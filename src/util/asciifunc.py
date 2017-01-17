@@ -1,3 +1,6 @@
+""" Provides various ascii related functions to assist with the cryptopals
+challenges. """
+
 from util.bmanip import xor
 
 # Dictionary of relative letter frequencies in standard text. All uppercase

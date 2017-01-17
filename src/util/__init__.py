@@ -1,1 +1,1 @@
-__all__ = ['bmanip, asciifunc']
+__all__ = ['bmanip, asciifunc, mcrypt']
