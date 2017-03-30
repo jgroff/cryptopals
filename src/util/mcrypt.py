@@ -1,3 +1,7 @@
+from math import floor
+
+from util.bmanip import xor
+
 """ Provides cryptographic functions and algorithms to assist with the
 cryptopals challenges. Uses pycrypto, however only uses the ECB mode
 from Cipher. Everything else is self implemented. (i.e., we don't want
@@ -21,6 +25,31 @@ class Aes(object):
     def ecbDecrypt(self, data):
         """ Decrypts the given data in ECB mode """
         return self.__cipher.decrypt(data)
+
+    def cbcEncrypt(self, data, iv):
+        """ Encrypts the given data in CBC mode """
+        if len(iv) != 16:
+            raise ValueError("IV must be of length 16")
+        encData = bytearray()
+        prevBlock = iv
+        numBlocks = floor(len(data) / 16)
+        for i in range(0, numBlocks):
+            blockToEncode = data[i * 16 : (i * 16) + 16]
+            encBlock = self.ecbEncrypt(xor(blockToEncode, prevBlock))
+            prevBlock = encBlock
+            encData.extend(encBlock)
+        # If there's bytes left over, handle them.
+        if len(data) % 16 == 0:
+            return encData
+        lastBlock = padPkcs7(data[numBlocks * 16 :], 16)
+        encBlock = self.ecbEncrypt(xor(lastBlock, prevBlock))
+        encData.extend(encBlock)
+        return encData
+
+
+    def cbcDecrypt(self, data, iv):
+        """ Decrypts the given data in CBC mode """
+
 
 def isEcbEncrypted(b):
     """ Given a bytes object, does a simple check to see if this might be
