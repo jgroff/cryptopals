@@ -16,7 +16,7 @@ class Aes(object):
         """ Setup the AES Cipher. Key must be a bytes object """
         if type(key) != bytes and type(key) != bytearray:
             raise ValueError("key must be a bytes or bytearray")
-        self.__cipher = _AES.AESCipher(key, _AES.MODE_ECB)
+        self.__cipher = _AES.new(key, _AES.MODE_ECB)
 
     def ecbEncrypt(self, data):
         """ Encrypts the given data in ECB mode """
@@ -49,6 +49,20 @@ class Aes(object):
 
     def cbcDecrypt(self, data, iv):
         """ Decrypts the given data in CBC mode """
+        if len(iv) != 16:
+            raise ValueError("IV must be of length 16")
+        decData = bytearray()
+        numBlocks = floor(len(data) / 16)
+        prevBlock = iv
+        for i in range(0, numBlocks):
+            blockToDecode = data[i * 16 : (i * 16) + 16]
+            decBlock = xor(self.ecbDecrypt(blockToDecode), prevBlock)
+            prevBlock = blockToDecode
+            decData.extend(decBlock)
+        # There shouldn't be bytes leftover if handled properly.
+        if len(data) % 16 != 0:
+            raise ValueError("Implement handling non-16-byte-multiple blocks")
+        return decData
 
 
 def isEcbEncrypted(b):
