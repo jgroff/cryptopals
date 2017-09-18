@@ -1,4 +1,5 @@
 from math import floor
+import random
 
 from util.bmanip import xor
 
@@ -87,3 +88,46 @@ def padPkcs7(dataBytes, blockSize):
     padVal = blockSize - modVal
     padBytes = bytes([padVal] * padVal)
     return dataBytes + padBytes
+
+def generateRandomAesKey():
+    """ Generates a random AES key """
+    return generateRandomBytes(16)
+
+def generateRandomBytes(num):
+    """ Generates a number of random bytes as requested by the argument """
+    b = bytes(random.getrandbits(8) for i in range(num))
+    return b
+
+def determineEcbBlockSize(encFunc):
+    """ Determines ECB Block Size of an encryption function that
+    takes raw bytes in and returns encrypted bytes. The function
+    should have only one argument, the data (the key is handled
+    by the function or elsewhere)
+    """
+    # No assumption is made to if padding is added or not, therefore
+    # we will base this off of repeated blocks (it IS ECB after all)
+    # We are testing for blocksizes in the range in the loop.
+    for blockSize in range(2, 128 + 1):
+        # Create test bytes double the length we are testing for.
+        testBytes = bytes('A'.encode() * (blockSize * 2))
+        # Encode
+        encBytes = encFunc(testBytes)
+        # If this is the block size, then we'll have two identical blocks
+        # of size blockSize next to each other
+        if encBytes[0 : blockSize] == encBytes[blockSize : blockSize * 2]:
+            return blockSize
+    # If we get to the end, throw an exception
+    raise ValueError("Could not determine ECB blocksize")
+
+def determineBlockSize(encFunc):
+    """ Determines block size of an encoding function. Assumes that
+    padding causes the function to be multiples of the blocksize at
+    all times.
+    """
+    curEncSize = len(encFunc("A".encode()))
+    for n in range (2, 256):
+        newEncSize = len(encFunc("A".encode() * n))
+        if newEncSize != curEncSize:
+            return newEncSize - curEncSize
+    return 0
+
