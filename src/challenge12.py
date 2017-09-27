@@ -43,8 +43,8 @@ def decryptEcbConstantAppend(encFunc, blockSize):
                 testOutput = encFunc(testInput)
                 if realOutput[start : end] == testOutput[start : end]:
                     decryptedBytes.append(b)
-                    print("blockNum %d  blockByte %d  Byte is 0x%x" % \
-                          (blockNum, blockByte, b))
+                    #print("blockNum %d  blockByte %d  Byte is 0x%x" % \
+                    #      (blockNum, blockByte, b))
                     break
     return bytes(decryptedBytes)
 

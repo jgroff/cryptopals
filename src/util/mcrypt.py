@@ -83,11 +83,18 @@ def padPkcs7(dataBytes, blockSize):
     """ Pads the given dataBytes using PKCS#7 padding. Pads to the given
     blocksize. """
     modVal = len(dataBytes) % blockSize
-    if modVal == 0:
-        return dataBytes
     padVal = blockSize - modVal
     padBytes = bytes([padVal] * padVal)
     return dataBytes + padBytes
+
+def unpadPkcs7(dataBytes, blockSize):
+    """ Unpads pkcs7 padding. """
+    # Last byte is ALWAYS the size of the padding.
+    padSize = dataBytes[-1]
+    for i in range(1, padSize+1):
+        if dataBytes[-i] != padSize:
+            raise ValueError("data is padded improperly.")
+    return dataBytes[:len(dataBytes) - padSize]
 
 def generateRandomAesKey():
     """ Generates a random AES key """
