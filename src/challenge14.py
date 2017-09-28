@@ -4,7 +4,7 @@ from util.mcrypt import *
 import binascii
 
 class Challenge14Encryptor(object):
-    """ An encryptor object for helping with challenge 12 """
+    """ An encryptor object for helping with challenge 14 """
 
     def __init__(self):
         """ Initialize the encryptor. """
