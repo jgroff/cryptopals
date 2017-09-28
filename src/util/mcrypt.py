@@ -39,14 +39,11 @@ class Aes(object):
             encBlock = self.ecbEncrypt(xor(blockToEncode, prevBlock))
             prevBlock = encBlock
             encData.extend(encBlock)
-        # If there's bytes left over, handle them.
-        if len(data) % 16 == 0:
-            return encData
+        # Handle padding on the last block.
         lastBlock = padPkcs7(data[numBlocks * 16 :], 16)
         encBlock = self.ecbEncrypt(xor(lastBlock, prevBlock))
         encData.extend(encBlock)
-        return encData
-
+        return bytes(encData)
 
     def cbcDecrypt(self, data, iv):
         """ Decrypts the given data in CBC mode """
@@ -63,10 +60,9 @@ class Aes(object):
         # There shouldn't be bytes leftover if handled properly.
         if len(data) % 16 != 0:
             raise ValueError("Implement handling non-16-byte-multiple blocks")
-        return decData
+        return bytes(decData)
 
-
-def isEcbEncrypted(b):
+def isEcbEncrypted(b, returnBool=True):
     """ Given a bytes object, does a simple check to see if this might be
         ECB encrypted. If any two 16 byte segments contain the same data,
         returns True. else, returns False. """
@@ -76,8 +72,14 @@ def isEcbEncrypted(b):
             chunk1 = b[i : i + 16]
             chunk2 = b[j : j + 16]
             if chunk1 == chunk2:
-                return True
-    return False
+                if (returnBool):
+                    return True
+                else:
+                    return chunk1
+    if (returnBool):
+        return False
+    else:
+        return bytes()
 
 def padPkcs7(dataBytes, blockSize):
     """ Pads the given dataBytes using PKCS#7 padding. Pads to the given
@@ -135,6 +137,6 @@ def determineBlockSize(encFunc):
     for n in range (2, 256):
         newEncSize = len(encFunc("A".encode() * n))
         if newEncSize != curEncSize:
-            return newEncSize - curEncSize
+            return abs(newEncSize - curEncSize)
     return 0
 
