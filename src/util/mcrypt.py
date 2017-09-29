@@ -93,7 +93,9 @@ def unpadPkcs7(dataBytes, blockSize):
     """ Unpads pkcs7 padding. """
     # Last byte is ALWAYS the size of the padding.
     padSize = dataBytes[-1]
-    for i in range(1, padSize+1):
+    if padSize == 0:
+        raise ValueError("data is padded improperly.")
+    for i in range(1, padSize + 1):
         if dataBytes[-i] != padSize:
             raise ValueError("data is padded improperly.")
     return dataBytes[:len(dataBytes) - padSize]
