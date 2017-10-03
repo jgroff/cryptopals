@@ -1,4 +1,4 @@
-from math import floor
+from math import floor, pow
 import random
 
 from util.bmanip import xor
@@ -61,6 +61,27 @@ class Aes(object):
         if len(data) % 16 != 0:
             raise ValueError("Implement handling non-16-byte-multiple blocks")
         return bytes(decData)
+
+    def ctrEncrypt(self, data, nonce):
+        """ Encrypts given data in CTR mode """
+        if nonce < 0 or nonce > (pow(2, 64) - 1):
+            raise ValueError("nonce must be a 64bit number")
+        # The counter is a block count, starting at 0.
+        # Both nonce and counter are 64-bit unsigned little endian in bytes
+        output = bytearray()
+        counter = 0
+        for i in range(0, len(data), 16):
+            block = data[i : i + 16]
+            plainX = nonce.to_bytes(8, byteorder='little', signed=False) + \
+                    counter.to_bytes(8, byteorder='little', signed=False)
+            encX = self.ecbEncrypt(plainX)
+            if len(block) < 16:
+                encX = encX[0 : len(block)]
+            blockX = xor(block, encX)
+            output.extend(blockX)
+            counter += 1
+        return bytes(output)
+
 
 def isEcbEncrypted(b, returnBool=True):
     """ Given a bytes object, does a simple check to see if this might be
